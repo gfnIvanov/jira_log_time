@@ -21,6 +21,48 @@ const config = {
     'MEDIMP',
     'MEDPM',
   ],
+
+  taskStatuses: [
+    {
+      id: null,
+      text: 'Текущий',
+    },
+    {
+      id: '181',
+      text: 'Разработка',
+    },
+    {
+      id: '191',
+      text: 'На ревью',
+    },
+    {
+      id: '211',
+      text: 'К разработке',
+    },
+    {
+      id: '411',
+      text: 'К тестированию',
+    },
+    {
+      id: '471',
+      text: 'Вернуть на анализ',
+    },
+    {
+      id: '561',
+      text: 'В ожидание',
+    },
+  ],
+
+  taskPerformers: [
+    {
+      login: null,
+      name: 'Текущий',
+    },
+    {
+      login: '',
+      name: '',
+    },
+  ],
 };
 
 export default config;

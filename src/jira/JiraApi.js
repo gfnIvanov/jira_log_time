@@ -1,6 +1,8 @@
 import fetch from 'node-fetch';
 import chalk from 'chalk';
 import url from 'url';
+import { parseDate } from '../utils/utils.js';
+import config from '../../config.js';
 
 export default class JiraApi {
   constructor(options) {
@@ -58,11 +60,11 @@ export default class JiraApi {
       .catch(err => console.log(chalk.red(err)));
   }
 
-  async getUserInfo() {
+  async getUserInfo(user = false) {
     const uriOptions = {
       mod: 'user',
       query: {
-        username: this.authOptions.user,
+        username: user || this.authOptions.user,
       },
     };
     const fetchOptions = {
@@ -77,7 +79,7 @@ export default class JiraApi {
   async postWorkLog(options) {
     const issue = await this.getIssueInfo(options.task);
     const user = await this.getUserInfo();
-    const today = JiraApi.parseDate(options.date);
+    const today = parseDate(options.date);
     const uriOptions = {
       mod: 'worklog',
     };
@@ -104,8 +106,61 @@ export default class JiraApi {
       .catch(err => console.log(chalk.red(err)));
   }
 
+  async postTaskComment(options) {
+    const uriOptions = {
+      mod: 'issue',
+      target: `${options.task}/comment`,
+    };
+    const fetchOptions = {
+      method: 'POST',
+      headers: this.getRequestHeader(),
+      body: JSON.stringify({
+        body: options.comment,
+      }),
+    };
+    return fetch(this.getURI(uriOptions), fetchOptions)
+      .then(res => res.status)
+      .catch(err => console.log(chalk.red(err)));
+  }
+
+  async postTaskStatus(options) {
+    const uriOptions = {
+      mod: 'issue',
+      target: `${options.task}/transitions`,
+    };
+    const fetchOptions = {
+      method: 'POST',
+      headers: this.getRequestHeader(),
+      body: JSON.stringify({
+        transition: {
+          id: config.taskStatuses.find(status => status.text === options.status).id,
+        },
+      }),
+    };
+    return fetch(this.getURI(uriOptions), fetchOptions)
+      .then(res => res.status)
+      .catch(err => console.log(chalk.red(err)));
+  }
+
+  async putTaskPerformer(options) {
+    const uriOptions = {
+      mod: 'issue',
+      target: `${options.task}/assignee`,
+    };
+    const fetchOptions = {
+      method: 'PUT',
+      headers: this.getRequestHeader(),
+      body: JSON.stringify({
+        name: config.taskPerformers.find(user => user.name === options.performer).login,
+      }),
+    };
+    return fetch(this.getURI(uriOptions), fetchOptions)
+      .then(res => res.status)
+      .catch(err => console.log(chalk.red(err)));
+  }
+
   async getLogTimeReport(endDate) {
-    const dateE = JiraApi.parseDate(endDate);
+    const dateE = parseDate(endDate);
     const arrDateB = dateE.split('-');
     arrDateB[2] = '01';
     const dateB = arrDateB.join('-');
@@ -124,9 +179,5 @@ export default class JiraApi {
     return fetch(this.getURI(uriOptions), fetchOptions)
       .then(res => res.json())
       .catch(err => console.log(chalk.red(err)));
-  }
-
-  static parseDate(someDate) {
-    return !someDate ? new Date().toISOString().split('T')[0] : someDate.split('.').reverse().join('-');
   }
 }
