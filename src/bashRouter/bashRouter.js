@@ -1,5 +1,6 @@
 import inquirer from 'inquirer';
 import config from '../../config.js';
+import { empty } from '../utils/utils.js';
 
 const bashRouter = {
   logQuestions: [
@@ -65,7 +66,7 @@ const bashRouter = {
       {
         type: 'list',
         name: 'project',
-        message: 'Проект',
+        message: 'Проект:',
         choices: config.projects,
       },
       {
@@ -81,17 +82,17 @@ const bashRouter = {
       {
         type: 'list',
         name: 'status',
-        message: 'Статус',
-        choices: config.taskStatuses.map(status => status.text),
+        message: 'Статус:',
+        choices: config.taskStatuses,
       },
       {
         type: 'list',
         name: 'performer',
-        message: 'Исполнитель',
+        message: 'Исполнитель:',
         choices: config.taskPerformers.map(user => user.name),
       },
     ];
-    if (chank) {
+    if (!empty(chank)) {
       updQuestions.splice(0, 2);
     }
     return inquirer.prompt(updQuestions);

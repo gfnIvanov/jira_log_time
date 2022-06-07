@@ -76,6 +76,20 @@ export default class JiraApi {
       .catch(err => console.log(chalk.red(err)));
   }
 
+  async getTaskStatusId(options) {
+    const uriOptions = {
+      mod: 'issue',
+      target: `${options.task}/transitions`,
+    };
+    const fetchOptions = {
+      method: 'GET',
+      headers: this.getRequestHeader(),
+    };
+    return fetch(this.getURI(uriOptions), fetchOptions)
+      .then(res => res.json())
+      .catch(err => console.log(chalk.red(err)));
+  }
+
   async postWorkLog(options) {
     const issue = await this.getIssueInfo(options.task);
     const user = await this.getUserInfo();
@@ -124,6 +138,23 @@ export default class JiraApi {
   }
 
   async postTaskStatus(options) {
+    let status;
+    let statusId;
+    try {
+      status = await this.getTaskStatusId(options);
+      const result = [];
+      status.transitions.forEach(transition => {
+        if (transition.name === options.status) {
+          result.push(transition.id);
+        }
+      });
+      if (result.length !== 1) {
+        throw new Error('Нельзя перевести задачу в выбранный статус!');
+      }
+      [statusId] = result;
+    } catch (err) {
+      console.log(chalk.red(err));
+    }
     const uriOptions = {
       mod: 'issue',
       target: `${options.task}/transitions`,
@@ -133,7 +164,7 @@ export default class JiraApi {
       headers: this.getRequestHeader(),
       body: JSON.stringify({
         transition: {
-          id: config.taskStatuses.find(status => status.text === options.status).id,
+          id: statusId,
         },
       }),
     };
