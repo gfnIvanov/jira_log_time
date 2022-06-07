@@ -3,7 +3,15 @@ export function parseDate(someDate) {
 }
 
 export function empty(item) {
-  if (item === false || item === 'undefined' || item === '' || item === null) {
-    return true;
+  let result = false;
+  if (typeof (item) === 'object') {
+    if (Array.isArray(item)) {
+      result = item.length === 0;
+    } else {
+      result = Object.keys(item).length === 0;
+    }
+  } else {
+    result = item === false || item === 'undefined' || item === '' || item === null;
   }
+  return result;
 }

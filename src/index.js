@@ -75,7 +75,7 @@ function logTime(name) {
   }
 }
 
-function logTimeSuccess(endDate = false, task = false) {
+function logTimeSuccess(endDate, task = false) {
   console.log(chalk.green('Данные успешно добавлены!'));
   getReport(endDate).then(rep => {
     console.table(rep);
@@ -86,10 +86,10 @@ function logTimeSuccess(endDate = false, task = false) {
   });
 }
 
-function updateTask(task = false) {
+function updateTask(task) {
   bashRouter.updateTask(task).then(async result => {
     const options = {
-      task: task || `${result.project}-${result.task}`,
+      task: !empty(task) || `${result.project}-${result.task}`,
       comment: result.comment,
       status: result.status,
       performer: result.performer,
