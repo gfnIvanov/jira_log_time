@@ -89,7 +89,7 @@ function logTimeSuccess(endDate, task = false) {
 function updateTask(task) {
   bashRouter.updateTask(task).then(async result => {
     const options = {
-      task: !empty(task) || `${result.project}-${result.task}`,
+      task: !empty(task) ? task : `${result.project}-${result.task}`,
       comment: result.comment,
       status: result.status,
       performer: result.performer,
